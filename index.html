@@ -20,10 +20,12 @@ body {
 h1 { font-size: 16px; margin-bottom: 14px; color: #aaa; }
 section { margin-bottom: 20px; }
 h2 { font-size: 13px; color: #888; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 4px; }
-select {
+select, input[type=text], input[type=number] {
   width: 100%; padding: 10px; background: #222; border: 1px solid #444;
   border-radius: 8px; color: #eee; font-size: 16px;
 }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
 .part-block {
   background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
   padding: 14px; margin-bottom: 12px;
@@ -43,13 +45,11 @@ select {
 .btn-g { background: #1a3a1a; border-color: #4c4; color: #4c4; }
 .btn-y { background: #2a2a00; border-color: #cc4; color: #cc4; }
 .btn-r { background: #2a1010; border-color: #c44; color: #c44; }
+.btn-blue { background: #0d1a2a; border-color: #48f; color: #48f; font-size: 15px; width: 100%; padding: 13px; border-radius: 8px; margin-top: 8px; }
 .timer-msg { font-size: 12px; color: #777; text-align: center; min-height: 16px; margin-bottom: 12px; }
 .time-input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
 .time-input-row label { font-size: 12px; color: #888; white-space: nowrap; }
-.time-input-row input {
-  flex: 1; padding: 9px; background: #222; border: 1px solid #444;
-  border-radius: 6px; color: #eee; font-size: 16px; text-align: right;
-}
+.time-input-row input { flex: 1; padding: 9px; background: #222; border: 1px solid #444; border-radius: 6px; color: #eee; font-size: 16px; text-align: right; width: auto; }
 .time-input-row .unit { font-size: 12px; color: #777; white-space: nowrap; }
 .divider { border: none; border-top: 1px solid #2a2a2a; margin: 12px 0; }
 .counter-row {
@@ -58,41 +58,21 @@ select {
   margin-bottom: 10px; overflow: hidden;
 }
 .counter-label { flex: 1; font-size: 13px; color: #aaa; padding: 0 12px; }
-.counter-val {
-  font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums;
-  padding: 10px 16px; min-width: 48px; text-align: center; color: #eee;
-}
-.cnt-btn {
-  padding: 10px 18px; background: #2a2a2a; border: none;
-  border-left: 1px solid #444; color: #ccc; font-size: 22px;
-  cursor: pointer; line-height: 1;
-}
+.counter-val { font-size: 22px; font-weight: 500; padding: 10px 16px; min-width: 48px; text-align: center; color: #eee; font-variant-numeric: tabular-nums; }
+.cnt-btn { padding: 10px 18px; background: #2a2a2a; border: none; border-left: 1px solid #444; color: #ccc; font-size: 22px; cursor: pointer; line-height: 1; }
 .cnt-btn:first-child { border-left: none; border-right: 1px solid #444; }
 .cnt-btn:active { background: #333; }
 .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-.summary-table th {
-  background: #1a1a1a; color: #888; font-size: 13px; font-weight: 500;
-  padding: 10px 8px; border: 1px solid #333; text-align: center;
-}
+.summary-table th { background: #1a1a1a; color: #888; font-size: 13px; font-weight: 500; padding: 10px 8px; border: 1px solid #333; text-align: center; }
 .summary-table th.row-header { text-align: left; width: 38%; }
-.summary-table td {
-  padding: 10px 8px; border: 1px solid #2a2a2a;
-  text-align: center; font-size: 16px; font-variant-numeric: tabular-nums;
-  background: #1a1a1a;
-}
+.summary-table td { padding: 10px 8px; border: 1px solid #2a2a2a; text-align: center; font-size: 16px; background: #1a1a1a; font-variant-numeric: tabular-nums; }
 .summary-table td.row-label { font-size: 13px; color: #888; text-align: left; background: #161616; }
 .matrix-wrap { margin-bottom: 14px; }
 .matrix-title { font-size: 12px; color: #888; margin-bottom: 6px; }
 .matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 4px; }
-.matrix-table th {
-  background: #1a1a1a; color: #777; font-weight: 500;
-  padding: 8px 6px; border: 1px solid #333; text-align: center; font-size: 12px;
-}
+.matrix-table th { background: #1a1a1a; color: #777; font-weight: 500; padding: 8px 6px; border: 1px solid #333; text-align: center; font-size: 12px; }
 .matrix-table th.corner { background: #161616; }
-.matrix-table td {
-  padding: 10px 6px; border: 1px solid #2a2a2a; text-align: center;
-  font-size: 13px; font-weight: 600;
-}
+.matrix-table td { padding: 10px 6px; border: 1px solid #2a2a2a; text-align: center; font-size: 13px; font-weight: 600; }
 .matrix-table td.row-h { background: #1a1a1a; color: #777; font-size: 12px; font-weight: 400; text-align: left; padding-left: 8px; }
 .c-normal   { background: #0d2a0d; color: #4c4; }
 .c-border   { background: #2a2500; color: #cc4; }
@@ -103,25 +83,51 @@ table.ref th { color: #777; font-weight: 500; padding: 6px 4px; border-bottom: 1
 table.ref td { padding: 7px 4px; border-bottom: 1px solid #222; }
 table.ref tr.hl td { color: #6af; font-weight: 600; }
 .legend { display: flex; gap: 12px; font-size: 12px; flex-wrap: wrap; margin-top: 8px; }
+
+/* 履歴 */
+.hist-item {
+  background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+  padding: 12px; margin-bottom: 8px; cursor: pointer;
+}
+.hist-item:active { background: #222; }
+.hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.hist-id { font-size: 14px; font-weight: 600; color: #ccc; }
+.hist-date { font-size: 12px; color: #666; }
+.hist-body { font-size: 12px; color: #888; line-height: 1.8; }
+.hist-del { background: none; border: none; color: #555; font-size: 18px; cursor: pointer; padding: 0 4px; }
+.hist-del:active { color: #f55; }
+.no-hist { font-size: 13px; color: #555; text-align: center; padding: 16px 0; }
+
 .disclaimer { font-size: 11px; color: #555; margin-top: 18px; line-height: 1.6; }
 </style>
 </head>
 <body>
 <h1>TMT 記録・集計</h1>
 
+<!-- ① 基本情報 -->
 <section>
-  <h2>① 年代</h2>
-  <select id="age" onchange="calc(); buildTable();">
-    <option value="">-- 選択 --</option>
-    <option value="20">20代</option>
-    <option value="30">30代</option>
-    <option value="40">40代</option>
-    <option value="50">50代</option>
-    <option value="60">60代</option>
-    <option value="70">70代</option>
-  </select>
+  <h2>① 基本情報</h2>
+  <div class="row2">
+    <div class="field">
+      <label>イニシャル</label>
+      <input type="text" id="initial" placeholder="例：YT" maxlength="4">
+    </div>
+    <div class="field">
+      <label>年代</label>
+      <select id="age" onchange="calc(); buildTable();">
+        <option value="">-- 選択 --</option>
+        <option value="20">20代</option>
+        <option value="30">30代</option>
+        <option value="40">40代</option>
+        <option value="50">50代</option>
+        <option value="60">60代</option>
+        <option value="70">70代</option>
+      </select>
+    </div>
+  </div>
 </section>
 
+<!-- ② Part A -->
 <section>
   <h2>② Part A</h2>
   <div class="part-block">
@@ -153,6 +159,7 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
   </div>
 </section>
 
+<!-- ③ Part B -->
 <section>
   <h2>③ Part B</h2>
   <div class="part-block">
@@ -184,12 +191,11 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
   </div>
 </section>
 
+<!-- ④ 集計・判定 -->
 <section>
   <h2>④ 集計・判定</h2>
   <table class="summary-table">
-    <thead>
-      <tr><th class="row-header"></th><th>Part A</th><th>Part B</th></tr>
-    </thead>
+    <thead><tr><th class="row-header"></th><th>Part A</th><th>Part B</th></tr></thead>
     <tbody>
       <tr><td class="row-label">所要時間（秒）</td><td id="s-at">—</td><td id="s-bt">—</td></tr>
       <tr><td class="row-label">エラー</td><td id="s-ae">0</td><td id="s-be">0</td></tr>
@@ -198,7 +204,7 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
   </table>
 
   <div class="matrix-wrap">
-    <div class="matrix-title">Part A 判定（縦：エラー回数 / 横：所要時間）</div>
+    <div class="matrix-title">Part A 判定（縦：エラー / 横：時間）</div>
     <table class="matrix-table">
       <thead><tr><th class="corner"></th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead>
       <tbody>
@@ -209,7 +215,7 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
   </div>
 
   <div class="matrix-wrap">
-    <div class="matrix-title">Part B 判定（縦：エラー回数 / 横：所要時間）</div>
+    <div class="matrix-title">Part B 判定（縦：エラー / 横：時間）</div>
     <table class="matrix-table">
       <thead><tr><th class="corner"></th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead>
       <tbody>
@@ -225,8 +231,11 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
     <span style="color:#f55;">● 異常</span>
     <span style="color:#fff;">□ 現在の値</span>
   </div>
+
+  <button class="btn btn-blue" onclick="saveRecord()">💾 この結果を保存する</button>
 </section>
 
+<!-- ⑤ 基準値表 -->
 <section>
   <h2>⑤ 基準値表</h2>
   <div style="font-size:12px;color:#888;margin-bottom:6px;">Part A（秒）</div>
@@ -236,7 +245,13 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
   <div class="legend"><span style="color:#6af;">← 選択年代</span></div>
 </section>
 
-<p class="disclaimer">※ 判定は参考値です。臨床判断は療法士が行ってください。個人情報は記録されません。</p>
+<!-- ⑥ 履歴 -->
+<section>
+  <h2>⑥ 履歴（直近10件・7日間保存）</h2>
+  <div id="hist-list"></div>
+</section>
+
+<p class="disclaimer">※ 判定は参考値です。臨床判断は療法士が行ってください。個人情報は記録されません。履歴はこの端末のみに保存されます。</p>
 
 <script>
 const N = {
@@ -286,11 +301,13 @@ function resetT(p) {
   document.getElementById('p'+p).disabled=true;
   document.getElementById('msg-'+p).textContent='';
 }
+
 function timeRank(v,n) {
   if(!n||isNaN(v)) return null;
   return v<=n.s1 ? 0 : v<=n.s2 ? 1 : 2;
 }
 function errRank(e, threshold) { return e < threshold ? 0 : 1; }
+const JUDGE = [['正常','境界','異常'],['境界','異常','異常']];
 
 function calc() {
   const age=parseInt(document.getElementById('age').value)||null;
@@ -305,25 +322,25 @@ function calc() {
   document.getElementById('s-bl').textContent = C.bl;
 
   ['ma-00','ma-01','ma-02','ma-10','ma-11','ma-12',
-   'mb-00','mb-01','mb-02','mb-10','mb-11','mb-12'].forEach(id => {
+   'mb-00','mb-01','mb-02','mb-10','mb-11','mb-12'].forEach(id=>{
     document.getElementById(id).classList.remove('c-current');
   });
   if(age && !isNaN(at)) {
     const tr=timeRank(at,N.A[age]), er=errRank(C.ae,3);
-    document.getElementById('ma-'+er+tr).classList.add('c-current');
+    if(tr!==null) document.getElementById('ma-'+er+tr).classList.add('c-current');
   }
   if(age && !isNaN(bt)) {
     const tr=timeRank(bt,N.B[age]), er=errRank(C.be,5);
-    document.getElementById('mb-'+er+tr).classList.add('c-current');
+    if(tr!==null) document.getElementById('mb-'+er+tr).classList.add('c-current');
   }
 }
 
 function buildTable() {
   const age=parseInt(document.getElementById('age').value)||null;
-  ['A','B'].forEach(pt => {
+  ['A','B'].forEach(pt=>{
     const tbody=document.getElementById('tb'+pt.toLowerCase());
     tbody.innerHTML='';
-    AGES.forEach(a => {
+    AGES.forEach(a=>{
       const n=N[pt][a], tr=document.createElement('tr');
       if(a===age) tr.className='hl';
       tr.innerHTML=`<td>${a}代</td><td>〜${n.s1}秒</td><td>${n.s1+1}〜${n.s2}秒</td><td>${n.s2+1}秒〜</td>`;
@@ -332,10 +349,104 @@ function buildTable() {
   });
 }
 
+// ---- 履歴 ----
+const HIST_KEY = 'tmt_history';
+const MAX_HIST = 10;
+const EXPIRE_MS = 7 * 24 * 60 * 60 * 1000; // 7日
+
+function loadHist() {
+  try {
+    const raw = localStorage.getItem(HIST_KEY);
+    if (!raw) return [];
+    const list = JSON.parse(raw);
+    const now = Date.now();
+    return list.filter(r => now - r.ts < EXPIRE_MS);
+  } catch(e) { return []; }
+}
+
+function saveHist(list) {
+  localStorage.setItem(HIST_KEY, JSON.stringify(list));
+}
+
+function judgeLabel(er, tr) {
+  if (er===null || tr===null) return '—';
+  return JUDGE[er][tr];
+}
+
+function saveRecord() {
+  const initial = document.getElementById('initial').value.trim() || '??';
+  const age = parseInt(document.getElementById('age').value)||null;
+  const at = parseFloat(document.getElementById('at').value);
+  const bt = parseFloat(document.getElementById('bt').value);
+
+  if (!age) { alert('年代を選択してください'); return; }
+  if (isNaN(at) && isNaN(bt)) { alert('所要時間を入力してください'); return; }
+
+  const trA = !isNaN(at) ? timeRank(at, N.A[age]) : null;
+  const erA = errRank(C.ae, 3);
+  const trB = !isNaN(bt) ? timeRank(bt, N.B[age]) : null;
+  const erB = errRank(C.be, 5);
+
+  const record = {
+    ts: Date.now(),
+    initial,
+    age,
+    at: isNaN(at) ? null : at,
+    bt: isNaN(bt) ? null : bt,
+    ae: C.ae, al: C.al,
+    be: C.be, bl: C.bl,
+    jaLabel: judgeLabel(erA, trA),
+    jbLabel: judgeLabel(erB, trB),
+  };
+
+  let list = loadHist();
+  list.unshift(record);
+  if (list.length > MAX_HIST) list = list.slice(0, MAX_HIST);
+  saveHist(list);
+  renderHist();
+  alert('保存しました！');
+}
+
+function deleteRecord(ts) {
+  let list = loadHist().filter(r => r.ts !== ts);
+  saveHist(list);
+  renderHist();
+}
+
+function dateStr(ts) {
+  const d = new Date(ts);
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function renderHist() {
+  const list = loadHist();
+  const el = document.getElementById('hist-list');
+  if (list.length === 0) {
+    el.innerHTML = '<div class="no-hist">保存された記録はありません</div>';
+    return;
+  }
+  el.innerHTML = list.map(r => `
+    <div class="hist-item">
+      <div class="hist-header">
+        <span class="hist-id">${r.initial}・${r.age}代</span>
+        <span>
+          <span class="hist-date">${dateStr(r.ts)}</span>
+          <button class="hist-del" onclick="deleteRecord(${r.ts})">✕</button>
+        </span>
+      </div>
+      <div class="hist-body">
+        A：${r.at!==null?r.at+'秒':'—'} / エラー${r.ae} / リフト${r.al} → <strong>${r.jaLabel}</strong><br>
+        B：${r.bt!==null?r.bt+'秒':'—'} / エラー${r.be} / リフト${r.bl} → <strong>${r.jbLabel}</strong>
+      </div>
+    </div>
+  `).join('');
+}
+
 if('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 buildTable();
+renderHist();
 </script>
 </body>
 </html>
