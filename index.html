@@ -11,66 +11,60 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <title>TMT 記録</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #111; color: #eee;
-  font-family: -apple-system, 'Hiragino Kaku Gothic ProN', sans-serif;
-  font-size: 15px; min-height: 100vh;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #111; color: #eee;
+  font-family: -apple-system, 'Hiragino Kaku Gothic ProN', sans-serif; font-size: 15px; }
 
-/* ===== 画面共通 ===== */
-.screen { display: none; padding: 20px 14px 40px; }
-.screen.active { display: block; }
+/* ===== ページ共通：全画面・非表示切替 ===== */
+.page {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  background: #111;
+}
+.page.active { display: flex; }
 
-/* ===== スタート画面 ===== */
-#screen-home {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  min-height: 100vh; padding: 40px 24px;
+/* ===== ホームページ ===== */
+#page-home {
+  align-items: center; justify-content: center; gap: 0;
+  padding: 40px 32px;
 }
-.home-title { font-size: 13px; color: #666; letter-spacing: 0.15em; margin-bottom: 10px; }
-.home-logo {
-  font-size: 64px; font-weight: 700; font-family: monospace;
-  color: #4c4; letter-spacing: 4px; margin-bottom: 6px;
-}
-.home-sub { font-size: 13px; color: #555; margin-bottom: 60px; }
+.home-label { font-size: 12px; color: #555; letter-spacing: 0.15em; margin-bottom: 12px; }
+.home-logo  { font-size: 72px; font-weight: 700; font-family: monospace; color: #4c4; letter-spacing: 6px; margin-bottom: 8px; }
+.home-sub   { font-size: 13px; color: #555; margin-bottom: 56px; }
 .home-btn {
-  width: 100%; max-width: 320px; padding: 18px;
-  border-radius: 12px; border: 1px solid #444;
+  width: 100%; max-width: 340px; padding: 20px;
+  border-radius: 14px; border: 1px solid #444;
   background: #1a1a1a; color: #eee;
-  font-size: 17px; font-weight: 500;
-  cursor: pointer; margin-bottom: 14px; text-align: center;
+  font-size: 18px; font-weight: 500; cursor: pointer;
+  margin-bottom: 14px; text-align: center;
 }
-.home-btn.primary { background: #0d2a0d; border-color: #4c4; color: #4c4; font-size: 19px; padding: 22px; }
-.home-btn:active { opacity: 0.7; }
-.home-hist-count { font-size: 12px; color: #555; margin-top: 4px; }
+.home-btn.primary { background: #0d2a0d; border-color: #4c4; color: #4c4; font-size: 20px; padding: 24px; margin-bottom: 16px; }
+.home-btn:active { opacity: 0.6; }
+.home-count { font-size: 12px; color: #555; margin-top: 6px; min-height: 18px; }
 
-/* ===== ヘッダー（検査・履歴画面） ===== */
+/* ===== 検査・履歴ページ共通ヘッダー ===== */
 .top-bar {
+  flex-shrink: 0;
   display: flex; align-items: center; gap: 10px;
-  padding: 14px; border-bottom: 1px solid #222;
-  background: #111; position: sticky; top: 0; z-index: 10;
+  padding: 14px 16px; border-bottom: 1px solid #222;
+  background: #111;
 }
-.back-btn {
-  background: none; border: none; color: #4c4;
-  font-size: 15px; cursor: pointer; padding: 4px 8px 4px 0;
-  white-space: nowrap;
-}
+.back-btn { background: none; border: none; color: #4c4; font-size: 15px; cursor: pointer; padding: 4px 10px 4px 0; white-space: nowrap; }
 .top-bar h1 { font-size: 16px; color: #ccc; font-weight: 600; }
 
-/* ===== 検査画面 ===== */
+/* ===== スクロール可能なコンテンツ領域 ===== */
+.scroll-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 14px 48px; }
+
+/* ===== 検査画面パーツ ===== */
 section { margin-bottom: 20px; }
 h2 { font-size: 13px; color: #888; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 4px; }
 select, input[type=text], input[type=number] {
   width: 100%; padding: 10px; background: #222; border: 1px solid #444;
-  border-radius: 8px; color: #eee; font-size: 16px;
+  border-radius: 8px; color: #eee; font-size: 16px; outline: none;
 }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .field label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
-.part-block {
-  background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
-  padding: 14px; margin-bottom: 12px;
-}
+.part-block { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
 .timer-num {
   font-size: 48px; font-weight: 300; letter-spacing: 3px;
   font-variant-numeric: tabular-nums; font-family: monospace;
@@ -78,107 +72,89 @@ select, input[type=text], input[type=number] {
 }
 .timer-num.running { color: #4c4; }
 .btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
-.btn {
-  flex: 1; padding: 11px 0; border-radius: 6px; border: 1px solid #444;
-  background: #222; color: #ccc; font-size: 14px; cursor: pointer;
-}
+.btn { flex: 1; padding: 11px 0; border-radius: 6px; border: 1px solid #444; background: #222; color: #ccc; font-size: 14px; cursor: pointer; }
 .btn:active { opacity: 0.7; }
 .btn-g { background: #1a3a1a; border-color: #4c4; color: #4c4; }
 .btn-y { background: #2a2a00; border-color: #cc4; color: #cc4; }
 .btn-r { background: #2a1010; border-color: #c44; color: #c44; }
-.btn-blue { background: #0d1a2a; border-color: #48f; color: #48f; font-size: 15px; width: 100%; padding: 14px; border-radius: 8px; margin-top: 8px; cursor: pointer; border-width: 1px; }
+.btn-save { background: #0d1a2a; border: 1px solid #48f; color: #48f; font-size: 15px; width: 100%; padding: 14px; border-radius: 8px; margin-top: 8px; cursor: pointer; }
 .timer-msg { font-size: 12px; color: #777; text-align: center; min-height: 16px; margin-bottom: 12px; }
-.time-input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-.time-input-row label { font-size: 12px; color: #888; white-space: nowrap; }
-.time-input-row input { flex: 1; padding: 9px; background: #222; border: 1px solid #444; border-radius: 6px; color: #eee; font-size: 16px; text-align: right; width: auto; }
-.time-input-row .unit { font-size: 12px; color: #777; white-space: nowrap; }
+.time-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.time-row label { font-size: 12px; color: #888; white-space: nowrap; }
+.time-row input { flex: 1; padding: 9px; background: #222; border: 1px solid #444; border-radius: 6px; color: #eee; font-size: 16px; text-align: right; width: auto; }
+.time-row .unit { font-size: 12px; color: #777; white-space: nowrap; }
 .divider { border: none; border-top: 1px solid #2a2a2a; margin: 12px 0; }
-.counter-row {
-  display: flex; align-items: center;
-  background: #222; border: 1px solid #444; border-radius: 8px;
-  margin-bottom: 10px; overflow: hidden;
-}
+.counter-row { display: flex; align-items: center; background: #222; border: 1px solid #444; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
 .counter-label { flex: 1; font-size: 13px; color: #aaa; padding: 0 12px; }
 .counter-val { font-size: 22px; font-weight: 500; padding: 10px 16px; min-width: 48px; text-align: center; color: #eee; font-variant-numeric: tabular-nums; }
 .cnt-btn { padding: 10px 18px; background: #2a2a2a; border: none; border-left: 1px solid #444; color: #ccc; font-size: 22px; cursor: pointer; line-height: 1; }
 .cnt-btn:first-child { border-left: none; border-right: 1px solid #444; }
 .cnt-btn:active { background: #333; }
-.summary-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-.summary-table th { background: #1a1a1a; color: #888; font-size: 13px; font-weight: 500; padding: 10px 8px; border: 1px solid #333; text-align: center; }
-.summary-table th.row-header { text-align: left; width: 38%; }
-.summary-table td { padding: 10px 8px; border: 1px solid #2a2a2a; text-align: center; font-size: 16px; background: #1a1a1a; font-variant-numeric: tabular-nums; }
-.summary-table td.row-label { font-size: 13px; color: #888; text-align: left; background: #161616; }
-.matrix-wrap { margin-bottom: 14px; }
-.matrix-title { font-size: 12px; color: #888; margin-bottom: 6px; }
-.matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.matrix-table th { background: #1a1a1a; color: #777; font-weight: 500; padding: 8px 6px; border: 1px solid #333; text-align: center; font-size: 12px; }
-.matrix-table th.corner { background: #161616; }
-.matrix-table td { padding: 10px 6px; border: 1px solid #2a2a2a; text-align: center; font-size: 13px; font-weight: 600; }
-.matrix-table td.row-h { background: #1a1a1a; color: #777; font-size: 12px; font-weight: 400; text-align: left; padding-left: 8px; }
-.c-normal   { background: #0d2a0d; color: #4c4; }
-.c-border   { background: #2a2500; color: #cc4; }
-.c-abnormal { background: #2a0d0d; color: #f55; }
-.c-current  { outline: 2px solid #fff; outline-offset: -2px; }
+.sum-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+.sum-table th { background: #1a1a1a; color: #888; font-size: 13px; font-weight: 500; padding: 10px 8px; border: 1px solid #333; text-align: center; }
+.sum-table th.rh { text-align: left; width: 38%; }
+.sum-table td { padding: 10px 8px; border: 1px solid #2a2a2a; text-align: center; font-size: 16px; background: #1a1a1a; font-variant-numeric: tabular-nums; }
+.sum-table td.rl { font-size: 13px; color: #888; text-align: left; background: #161616; }
+.mx-wrap { margin-bottom: 14px; }
+.mx-title { font-size: 12px; color: #888; margin-bottom: 6px; }
+.mx-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mx-table th { background: #1a1a1a; color: #777; font-weight: 500; padding: 8px 6px; border: 1px solid #333; text-align: center; font-size: 12px; }
+.mx-table th.co { background: #161616; }
+.mx-table td { padding: 10px 6px; border: 1px solid #2a2a2a; text-align: center; font-size: 13px; font-weight: 600; }
+.mx-table td.rh { background: #1a1a1a; color: #777; font-size: 12px; font-weight: 400; text-align: left; padding-left: 8px; }
+.cn { background: #0d2a0d; color: #4c4; }
+.cb { background: #2a2500; color: #cc4; }
+.ca { background: #2a0d0d; color: #f55; }
+.cc { outline: 2px solid #fff; outline-offset: -2px; }
 table.ref { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px; }
 table.ref th { color: #777; font-weight: 500; padding: 6px 4px; border-bottom: 1px solid #333; text-align: left; font-size: 12px; }
 table.ref td { padding: 7px 4px; border-bottom: 1px solid #222; }
 table.ref tr.hl td { color: #6af; font-weight: 600; }
 .legend { display: flex; gap: 12px; font-size: 12px; flex-wrap: wrap; margin-top: 8px; }
+.disclaimer { font-size: 11px; color: #555; margin-top: 20px; line-height: 1.6; }
 
-/* ===== 履歴画面 ===== */
-.hist-item {
-  background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
-  padding: 14px; margin-bottom: 10px;
-}
-.hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+/* ===== 履歴 ===== */
+.hist-item { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+.hist-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .hist-id { font-size: 16px; font-weight: 600; color: #ccc; }
 .hist-date { font-size: 12px; color: #666; }
 .hist-body { font-size: 13px; color: #999; line-height: 2; }
 .hist-body strong { color: #eee; }
-.hist-del { background: none; border: 1px solid #333; border-radius: 6px; color: #666; font-size: 13px; cursor: pointer; padding: 4px 10px; }
+.hist-del { background: none; border: 1px solid #333; border-radius: 6px; color: #666; font-size: 13px; cursor: pointer; padding: 4px 10px; margin-left: 8px; }
 .hist-del:active { color: #f55; border-color: #f55; }
-.no-hist { font-size: 14px; color: #555; text-align: center; padding: 60px 0; }
-
-.disclaimer { font-size: 11px; color: #555; margin-top: 24px; line-height: 1.6; }
+.no-hist { font-size: 14px; color: #555; text-align: center; padding: 80px 0; }
 </style>
 </head>
 <body>
 
-<!-- ===== ホーム画面 ===== -->
-<div id="screen-home" class="active">
-  <div class="home-title">Trail Making Test</div>
+<!-- ===== ホームページ ===== -->
+<div id="page-home" class="page active">
+  <div class="home-label">Trail Making Test</div>
   <div class="home-logo">TMT</div>
   <div class="home-sub">記録・集計補助アプリ</div>
-  <button class="home-btn primary" onclick="gotoExam()">▶ 検査を始める</button>
-  <button class="home-btn" onclick="gotoHist()">📋 履歴を見る</button>
-  <div class="home-hist-count" id="hist-count"></div>
+  <button class="home-btn primary" onclick="goto('exam')">▶ 検査を始める</button>
+  <button class="home-btn" onclick="goto('hist')">📋 履歴を見る</button>
+  <div class="home-count" id="home-count"></div>
 </div>
 
-<!-- ===== 検査画面 ===== -->
-<div id="screen-exam" class="screen">
+<!-- ===== 検査ページ ===== -->
+<div id="page-exam" class="page">
   <div class="top-bar">
-    <button class="back-btn" onclick="gotoHome()">← ホーム</button>
+    <button class="back-btn" onclick="goto('home')">← ホーム</button>
     <h1>検査記録</h1>
   </div>
-  <div style="padding:14px 14px 40px;">
+  <div class="scroll-body">
 
     <section>
       <h2>① 基本情報</h2>
       <div class="row2">
-        <div class="field">
-          <label>イニシャル</label>
-          <input type="text" id="initial" placeholder="例：YT" maxlength="4">
-        </div>
-        <div class="field">
-          <label>年代</label>
-          <select id="age" onchange="calc(); buildTable();">
+        <div class="field"><label>イニシャル</label><input type="text" id="initial" placeholder="例：YT" maxlength="4"></div>
+        <div class="field"><label>年代</label>
+          <select id="age" onchange="calc();buildRef();">
             <option value="">-- 選択 --</option>
-            <option value="20">20代</option>
-            <option value="30">30代</option>
-            <option value="40">40代</option>
-            <option value="50">50代</option>
-            <option value="60">60代</option>
-            <option value="70">70代</option>
+            <option value="20">20代</option><option value="30">30代</option>
+            <option value="40">40代</option><option value="50">50代</option>
+            <option value="60">60代</option><option value="70">70代</option>
           </select>
         </div>
       </div>
@@ -194,24 +170,10 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
           <button class="btn btn-r" onclick="resetT('a')">↺ リセット</button>
         </div>
         <div class="timer-msg" id="msg-a"></div>
-        <div class="time-input-row">
-          <label>所要時間</label>
-          <input type="number" id="at" min="0" placeholder="0" oninput="calc()">
-          <span class="unit">秒</span>
-        </div>
+        <div class="time-row"><label>所要時間</label><input type="number" id="at" min="0" placeholder="0" oninput="calc()"><span class="unit">秒</span></div>
         <hr class="divider">
-        <div class="counter-row">
-          <button class="cnt-btn" onclick="cnt('ae',-1)">−</button>
-          <div class="counter-label">エラー</div>
-          <div class="counter-val" id="ae">0</div>
-          <button class="cnt-btn" onclick="cnt('ae',1)">＋</button>
-        </div>
-        <div class="counter-row">
-          <button class="cnt-btn" onclick="cnt('al',-1)">−</button>
-          <div class="counter-label">リフト</div>
-          <div class="counter-val" id="al">0</div>
-          <button class="cnt-btn" onclick="cnt('al',1)">＋</button>
-        </div>
+        <div class="counter-row"><button class="cnt-btn" onclick="cnt('ae',-1)">−</button><div class="counter-label">エラー</div><div class="counter-val" id="ae">0</div><button class="cnt-btn" onclick="cnt('ae',1)">＋</button></div>
+        <div class="counter-row"><button class="cnt-btn" onclick="cnt('al',-1)">−</button><div class="counter-label">リフト</div><div class="counter-val" id="al">0</div><button class="cnt-btn" onclick="cnt('al',1)">＋</button></div>
       </div>
     </section>
 
@@ -225,89 +187,72 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
           <button class="btn btn-r" onclick="resetT('b')">↺ リセット</button>
         </div>
         <div class="timer-msg" id="msg-b"></div>
-        <div class="time-input-row">
-          <label>所要時間</label>
-          <input type="number" id="bt" min="0" placeholder="0" oninput="calc()">
-          <span class="unit">秒</span>
-        </div>
+        <div class="time-row"><label>所要時間</label><input type="number" id="bt" min="0" placeholder="0" oninput="calc()"><span class="unit">秒</span></div>
         <hr class="divider">
-        <div class="counter-row">
-          <button class="cnt-btn" onclick="cnt('be',-1)">−</button>
-          <div class="counter-label">エラー</div>
-          <div class="counter-val" id="be">0</div>
-          <button class="cnt-btn" onclick="cnt('be',1)">＋</button>
-        </div>
-        <div class="counter-row">
-          <button class="cnt-btn" onclick="cnt('bl',-1)">−</button>
-          <div class="counter-label">リフト</div>
-          <div class="counter-val" id="bl">0</div>
-          <button class="cnt-btn" onclick="cnt('bl',1)">＋</button>
-        </div>
+        <div class="counter-row"><button class="cnt-btn" onclick="cnt('be',-1)">−</button><div class="counter-label">エラー</div><div class="counter-val" id="be">0</div><button class="cnt-btn" onclick="cnt('be',1)">＋</button></div>
+        <div class="counter-row"><button class="cnt-btn" onclick="cnt('bl',-1)">−</button><div class="counter-label">リフト</div><div class="counter-val" id="bl">0</div><button class="cnt-btn" onclick="cnt('bl',1)">＋</button></div>
       </div>
     </section>
 
     <section>
       <h2>④ 集計・判定</h2>
-      <table class="summary-table">
-        <thead><tr><th class="row-header"></th><th>Part A</th><th>Part B</th></tr></thead>
+      <table class="sum-table">
+        <thead><tr><th class="rh"></th><th>Part A</th><th>Part B</th></tr></thead>
         <tbody>
-          <tr><td class="row-label">所要時間（秒）</td><td id="s-at">—</td><td id="s-bt">—</td></tr>
-          <tr><td class="row-label">エラー</td><td id="s-ae">0</td><td id="s-be">0</td></tr>
-          <tr><td class="row-label">リフト</td><td id="s-al">0</td><td id="s-bl">0</td></tr>
+          <tr><td class="rl">所要時間（秒）</td><td id="s-at">—</td><td id="s-bt">—</td></tr>
+          <tr><td class="rl">エラー</td><td id="s-ae">0</td><td id="s-be">0</td></tr>
+          <tr><td class="rl">リフト</td><td id="s-al">0</td><td id="s-bl">0</td></tr>
         </tbody>
       </table>
-
-      <div class="matrix-wrap">
-        <div class="matrix-title">Part A 判定（縦：エラー / 横：時間）</div>
-        <table class="matrix-table">
-          <thead><tr><th class="corner"></th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead>
+      <div class="mx-wrap">
+        <div class="mx-title">Part A 判定（縦：エラー / 横：時間）</div>
+        <table class="mx-table">
+          <thead><tr><th class="co"></th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead>
           <tbody>
-            <tr><td class="row-h">0〜2回</td><td class="c-normal" id="ma-00">正常</td><td class="c-border" id="ma-01">境界</td><td class="c-abnormal" id="ma-02">異常</td></tr>
-            <tr><td class="row-h">3回以上</td><td class="c-border" id="ma-10">境界</td><td class="c-abnormal" id="ma-11">異常</td><td class="c-abnormal" id="ma-12">異常</td></tr>
+            <tr><td class="rh">0〜2回</td><td class="cn" id="ma-00">正常</td><td class="cb" id="ma-01">境界</td><td class="ca" id="ma-02">異常</td></tr>
+            <tr><td class="rh">3回以上</td><td class="cb" id="ma-10">境界</td><td class="ca" id="ma-11">異常</td><td class="ca" id="ma-12">異常</td></tr>
           </tbody>
         </table>
       </div>
-
-      <div class="matrix-wrap">
-        <div class="matrix-title">Part B 判定（縦：エラー / 横：時間）</div>
-        <table class="matrix-table">
-          <thead><tr><th class="corner"></th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead>
+      <div class="mx-wrap">
+        <div class="mx-title">Part B 判定（縦：エラー / 横：時間）</div>
+        <table class="mx-table">
+          <thead><tr><th class="co"></th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead>
           <tbody>
-            <tr><td class="row-h">0〜4回</td><td class="c-normal" id="mb-00">正常</td><td class="c-border" id="mb-01">境界</td><td class="c-abnormal" id="mb-02">異常</td></tr>
-            <tr><td class="row-h">5回以上</td><td class="c-border" id="mb-10">境界</td><td class="c-abnormal" id="mb-11">異常</td><td class="c-abnormal" id="mb-12">異常</td></tr>
+            <tr><td class="rh">0〜4回</td><td class="cn" id="mb-00">正常</td><td class="cb" id="mb-01">境界</td><td class="ca" id="mb-02">異常</td></tr>
+            <tr><td class="rh">5回以上</td><td class="cb" id="mb-10">境界</td><td class="ca" id="mb-11">異常</td><td class="ca" id="mb-12">異常</td></tr>
           </tbody>
         </table>
       </div>
-
       <div class="legend">
         <span style="color:#4c4;">● 正常</span>
         <span style="color:#cc4;">● 境界</span>
         <span style="color:#f55;">● 異常</span>
         <span style="color:#fff;">□ 現在の値</span>
       </div>
-      <button class="btn-blue" onclick="saveRecord()">💾 この結果を保存する</button>
+      <button class="btn-save" onclick="saveRecord()">💾 この結果を保存する</button>
     </section>
 
     <section>
       <h2>⑤ 基準値表</h2>
       <div style="font-size:12px;color:#888;margin-bottom:6px;">Part A（秒）</div>
-      <table class="ref"><thead><tr><th>年代</th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead><tbody id="tba"></tbody></table>
+      <table class="ref"><thead><tr><th>年代</th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead><tbody id="rba"></tbody></table>
       <div style="font-size:12px;color:#888;margin-bottom:6px;">Part B（秒）</div>
-      <table class="ref"><thead><tr><th>年代</th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead><tbody id="tbb"></tbody></table>
+      <table class="ref"><thead><tr><th>年代</th><th>±1SD以内</th><th>±2SD以内</th><th>±2SD超</th></tr></thead><tbody id="rbb"></tbody></table>
       <div class="legend"><span style="color:#6af;">← 選択年代</span></div>
     </section>
 
-    <p class="disclaimer">※ 判定は参考値です。臨床判断は療法士が行ってください。個人情報は記録されません。履歴はこの端末のみに保存されます。</p>
+    <p class="disclaimer">※ 判定は参考値です。臨床判断は療法士が行ってください。個人情報は記録されません。</p>
   </div>
 </div>
 
-<!-- ===== 履歴画面 ===== -->
-<div id="screen-hist" class="screen">
+<!-- ===== 履歴ページ ===== -->
+<div id="page-hist" class="page">
   <div class="top-bar">
-    <button class="back-btn" onclick="gotoHome()">← ホーム</button>
+    <button class="back-btn" onclick="goto('home')">← ホーム</button>
     <h1>検査履歴</h1>
   </div>
-  <div style="padding:14px 14px 40px;">
+  <div class="scroll-body">
     <div id="hist-list"></div>
     <p class="disclaimer">直近10件・7日間保存。この端末のみに保存されます。</p>
   </div>
@@ -315,190 +260,86 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
 
 <script>
 const N = {
-  A: { 20:{s1:37,s2:45}, 30:{s1:37,s2:45}, 40:{s1:38,s2:45}, 50:{s1:40,s2:46}, 60:{s1:42,s2:49}, 70:{s1:57,s2:68} },
-  B: { 20:{s1:54,s2:65}, 30:{s1:55,s2:65}, 40:{s1:61,s2:73}, 50:{s1:74,s2:88}, 60:{s1:75,s2:88}, 70:{s1:113,s2:138} }
+  A:{20:{s1:37,s2:45},30:{s1:37,s2:45},40:{s1:38,s2:45},50:{s1:40,s2:46},60:{s1:42,s2:49},70:{s1:57,s2:68}},
+  B:{20:{s1:54,s2:65},30:{s1:55,s2:65},40:{s1:61,s2:73},50:{s1:74,s2:88},60:{s1:75,s2:88},70:{s1:113,s2:138}}
 };
-const AGES = [20,30,40,50,60,70];
-const C = { ae:0, al:0, be:0, bl:0 };
-const JUDGE = [['正常','境界','異常'],['境界','異常','異常']];
-const HIST_KEY = 'tmt_history';
-const MAX_HIST = 10;
-const EXPIRE_MS = 7*24*60*60*1000;
+const AGES=[20,30,40,50,60,70];
+const C={ae:0,al:0,be:0,bl:0};
+const JDG=[['正常','境界','異常'],['境界','異常','異常']];
+const HKEY='tmt_history', HMAX=10, HEXP=7*24*60*60*1000;
 
-// ---- 画面切替 ----
-function showScreen(id) {
-  document.querySelectorAll('.screen, #screen-home').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = '';
-  });
-  const el = document.getElementById(id);
-  el.style.display = 'block';
-  el.classList.add('active');
+// ---- ページ切替 ----
+function goto(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
   window.scrollTo(0,0);
+  if(name==='home') updateCount();
+  if(name==='hist') renderHist();
 }
-function gotoHome()  { updateHistCount(); showScreen('screen-home'); }
-function gotoExam()  { showScreen('screen-exam'); }
-function gotoHist()  { renderHist(); showScreen('screen-hist'); }
 
 // ---- カウンター ----
-function cnt(id, d) {
-  C[id] = Math.max(0, C[id]+d);
-  document.getElementById(id).textContent = C[id];
-  calc();
-}
+function cnt(id,d){C[id]=Math.max(0,C[id]+d);document.getElementById(id).textContent=C[id];calc();}
 
 // ---- タイマー ----
-const T = { a:{iv:null,el:0}, b:{iv:null,el:0} };
-function fmt(ms) {
-  const t=ms/1000, m=Math.floor(t/60), s=Math.floor(t%60), d=Math.floor((t*10)%10);
-  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+d;
-}
-function startT(p) {
-  const st=T[p]; if(st.iv) return;
-  const t0=Date.now()-st.el;
-  st.iv=setInterval(()=>{st.el=Date.now()-t0; document.getElementById('disp-'+p).textContent=fmt(st.el);},100);
-  document.getElementById('disp-'+p).classList.add('running');
-  document.getElementById('s'+p).disabled=true;
-  document.getElementById('p'+p).disabled=false;
-  document.getElementById('msg-'+p).textContent='計測中...';
-}
-function stopT(p) {
-  const st=T[p];
-  clearInterval(st.iv); st.iv=null;
-  document.getElementById('disp-'+p).classList.remove('running');
-  document.getElementById('s'+p).disabled=false;
-  document.getElementById('p'+p).disabled=true;
-  const sec=Math.round(st.el/1000);
-  document.getElementById(p+'t').value=sec;
-  document.getElementById('msg-'+p).textContent=sec+'秒 → 入力欄に転記しました';
-  calc();
-}
-function resetT(p) {
-  const st=T[p];
-  clearInterval(st.iv); st.iv=null; st.el=0;
-  document.getElementById('disp-'+p).textContent='00:00.0';
-  document.getElementById('disp-'+p).classList.remove('running');
-  document.getElementById('s'+p).disabled=false;
-  document.getElementById('p'+p).disabled=true;
-  document.getElementById('msg-'+p).textContent='';
-}
+const T={a:{iv:null,el:0},b:{iv:null,el:0}};
+function fmt(ms){const t=ms/1000,m=Math.floor(t/60),s=Math.floor(t%60),d=Math.floor((t*10)%10);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+d;}
+function startT(p){const st=T[p];if(st.iv)return;const t0=Date.now()-st.el;st.iv=setInterval(()=>{st.el=Date.now()-t0;document.getElementById('disp-'+p).textContent=fmt(st.el);},100);document.getElementById('disp-'+p).classList.add('running');document.getElementById('s'+p).disabled=true;document.getElementById('p'+p).disabled=false;document.getElementById('msg-'+p).textContent='計測中...';}
+function stopT(p){const st=T[p];clearInterval(st.iv);st.iv=null;document.getElementById('disp-'+p).classList.remove('running');document.getElementById('s'+p).disabled=false;document.getElementById('p'+p).disabled=true;const sec=Math.round(st.el/1000);document.getElementById(p+'t').value=sec;document.getElementById('msg-'+p).textContent=sec+'秒 → 入力欄に転記しました';calc();}
+function resetT(p){const st=T[p];clearInterval(st.iv);st.iv=null;st.el=0;document.getElementById('disp-'+p).textContent='00:00.0';document.getElementById('disp-'+p).classList.remove('running');document.getElementById('s'+p).disabled=false;document.getElementById('p'+p).disabled=true;document.getElementById('msg-'+p).textContent='';}
 
-// ---- 集計・判定 ----
-function timeRank(v,n) {
-  if(!n||isNaN(v)) return null;
-  return v<=n.s1 ? 0 : v<=n.s2 ? 1 : 2;
-}
-function errRank(e,thr) { return e<thr ? 0 : 1; }
-
-function calc() {
+// ---- 集計 ----
+function trank(v,n){if(!n||isNaN(v))return null;return v<=n.s1?0:v<=n.s2?1:2;}
+function erank(e,thr){return e<thr?0:1;}
+function calc(){
   const age=parseInt(document.getElementById('age').value)||null;
   const at=parseFloat(document.getElementById('at').value);
   const bt=parseFloat(document.getElementById('bt').value);
-  document.getElementById('s-at').textContent = !isNaN(at)?at+'秒':'—';
-  document.getElementById('s-bt').textContent = !isNaN(bt)?bt+'秒':'—';
-  document.getElementById('s-ae').textContent = C.ae;
-  document.getElementById('s-al').textContent = C.al;
-  document.getElementById('s-be').textContent = C.be;
-  document.getElementById('s-bl').textContent = C.bl;
-  ['ma-00','ma-01','ma-02','ma-10','ma-11','ma-12',
-   'mb-00','mb-01','mb-02','mb-10','mb-11','mb-12'].forEach(id=>{
-    document.getElementById(id).classList.remove('c-current');
-  });
-  if(age&&!isNaN(at)){const tr=timeRank(at,N.A[age]),er=errRank(C.ae,3); if(tr!==null) document.getElementById('ma-'+er+tr).classList.add('c-current');}
-  if(age&&!isNaN(bt)){const tr=timeRank(bt,N.B[age]),er=errRank(C.be,5); if(tr!==null) document.getElementById('mb-'+er+tr).classList.add('c-current');}
+  document.getElementById('s-at').textContent=!isNaN(at)?at+'秒':'—';
+  document.getElementById('s-bt').textContent=!isNaN(bt)?bt+'秒':'—';
+  document.getElementById('s-ae').textContent=C.ae;
+  document.getElementById('s-al').textContent=C.al;
+  document.getElementById('s-be').textContent=C.be;
+  document.getElementById('s-bl').textContent=C.bl;
+  ['ma-00','ma-01','ma-02','ma-10','ma-11','ma-12','mb-00','mb-01','mb-02','mb-10','mb-11','mb-12'].forEach(id=>document.getElementById(id).classList.remove('cc'));
+  if(age&&!isNaN(at)){const tr=trank(at,N.A[age]),er=erank(C.ae,3);if(tr!==null)document.getElementById('ma-'+er+tr).classList.add('cc');}
+  if(age&&!isNaN(bt)){const tr=trank(bt,N.B[age]),er=erank(C.be,5);if(tr!==null)document.getElementById('mb-'+er+tr).classList.add('cc');}
 }
-
-function buildTable() {
+function buildRef(){
   const age=parseInt(document.getElementById('age').value)||null;
   ['A','B'].forEach(pt=>{
-    const tbody=document.getElementById('tb'+pt.toLowerCase()); tbody.innerHTML='';
-    AGES.forEach(a=>{
-      const n=N[pt][a],tr=document.createElement('tr');
-      if(a===age) tr.className='hl';
-      tr.innerHTML=`<td>${a}代</td><td>〜${n.s1}秒</td><td>${n.s1+1}〜${n.s2}秒</td><td>${n.s2+1}秒〜</td>`;
-      tbody.appendChild(tr);
-    });
+    const tb=document.getElementById('rb'+pt.toLowerCase());tb.innerHTML='';
+    AGES.forEach(a=>{const n=N[pt][a],tr=document.createElement('tr');if(a===age)tr.className='hl';tr.innerHTML=`<td>${a}代</td><td>〜${n.s1}秒</td><td>${n.s1+1}〜${n.s2}秒</td><td>${n.s2+1}秒〜</td>`;tb.appendChild(tr);});
   });
 }
 
 // ---- 履歴 ----
-function loadHist() {
-  try {
-    const raw=localStorage.getItem(HIST_KEY);
-    if(!raw) return [];
-    return JSON.parse(raw).filter(r=>Date.now()-r.ts<EXPIRE_MS);
-  } catch(e){return [];}
-}
-function saveHist(list){localStorage.setItem(HIST_KEY,JSON.stringify(list));}
-
-function judgeLabel(er,tr){
-  if(er===null||tr===null) return '—';
-  return JUDGE[er][tr];
-}
-
+function loadHist(){try{const r=localStorage.getItem(HKEY);if(!r)return[];return JSON.parse(r).filter(x=>Date.now()-x.ts<HEXP);}catch(e){return[];}}
+function saveHist(l){localStorage.setItem(HKEY,JSON.stringify(l));}
+function jlabel(er,tr){if(er===null||tr===null)return'—';return JDG[er][tr];}
 function saveRecord(){
-  const initial=document.getElementById('initial').value.trim()||'??';
+  const ini=document.getElementById('initial').value.trim()||'??';
   const age=parseInt(document.getElementById('age').value)||null;
   const at=parseFloat(document.getElementById('at').value);
   const bt=parseFloat(document.getElementById('bt').value);
   if(!age){alert('年代を選択してください');return;}
   if(isNaN(at)&&isNaN(bt)){alert('所要時間を入力してください');return;}
-  const trA=!isNaN(at)?timeRank(at,N.A[age]):null;
-  const erA=errRank(C.ae,3);
-  const trB=!isNaN(bt)?timeRank(bt,N.B[age]):null;
-  const erB=errRank(C.be,5);
-  const record={ts:Date.now(),initial,age,at:isNaN(at)?null:at,bt:isNaN(bt)?null:bt,ae:C.ae,al:C.al,be:C.be,bl:C.bl,jaLabel:judgeLabel(erA,trA),jbLabel:judgeLabel(erB,trB)};
-  let list=loadHist(); list.unshift(record);
-  if(list.length>MAX_HIST) list=list.slice(0,MAX_HIST);
-  saveHist(list);
-  updateHistCount();
-  alert('保存しました！');
+  const trA=!isNaN(at)?trank(at,N.A[age]):null,erA=erank(C.ae,3);
+  const trB=!isNaN(bt)?trank(bt,N.B[age]):null,erB=erank(C.be,5);
+  const rec={ts:Date.now(),ini,age,at:isNaN(at)?null:at,bt:isNaN(bt)?null:bt,ae:C.ae,al:C.al,be:C.be,bl:C.bl,ja:jlabel(erA,trA),jb:jlabel(erB,trB)};
+  let l=loadHist();l.unshift(rec);if(l.length>HMAX)l=l.slice(0,HMAX);
+  saveHist(l);updateCount();alert('保存しました！');
 }
-
-function deleteRecord(ts){
-  saveHist(loadHist().filter(r=>r.ts!==ts));
-  renderHist(); updateHistCount();
-}
-
-function dateStr(ts){
-  const d=new Date(ts);
-  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-
+function delRec(ts){saveHist(loadHist().filter(r=>r.ts!==ts));renderHist();updateCount();}
+function dstr(ts){const d=new Date(ts);return`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 function renderHist(){
-  const list=loadHist();
-  const el=document.getElementById('hist-list');
-  if(list.length===0){el.innerHTML='<div class="no-hist">保存された記録はありません</div>';return;}
-  el.innerHTML=list.map(r=>`
-    <div class="hist-item">
-      <div class="hist-header">
-        <span class="hist-id">${r.initial}・${r.age}代</span>
-        <span style="display:flex;align-items:center;gap:8px;">
-          <span class="hist-date">${dateStr(r.ts)}</span>
-          <button class="hist-del" onclick="deleteRecord(${r.ts})">削除</button>
-        </span>
-      </div>
-      <div class="hist-body">
-        A：${r.at!==null?r.at+'秒':'—'} / エラー${r.ae} / リフト${r.al} → <strong>${r.jaLabel}</strong><br>
-        B：${r.bt!==null?r.bt+'秒':'—'} / エラー${r.be} / リフト${r.bl} → <strong>${r.jbLabel}</strong>
-      </div>
-    </div>
-  `).join('');
+  const l=loadHist(),el=document.getElementById('hist-list');
+  if(!l.length){el.innerHTML='<div class="no-hist">保存された記録はありません</div>';return;}
+  el.innerHTML=l.map(r=>`<div class="hist-item"><div class="hist-hd"><span class="hist-id">${r.ini}・${r.age}代</span><span><span class="hist-date">${dstr(r.ts)}</span><button class="hist-del" onclick="delRec(${r.ts})">削除</button></span></div><div class="hist-body">A：${r.at!==null?r.at+'秒':'—'} / エラー${r.ae} / リフト${r.al} → <strong>${r.ja}</strong><br>B：${r.bt!==null?r.bt+'秒':'—'} / エラー${r.be} / リフト${r.bl} → <strong>${r.jb}</strong></div></div>`).join('');
 }
+function updateCount(){const n=loadHist().length;document.getElementById('home-count').textContent=n?`保存済み ${n}件`:'';}
 
-function updateHistCount(){
-  const n=loadHist().length;
-  document.getElementById('hist-count').textContent = n>0 ? `保存済み ${n}件` : '';
-}
-
-// ---- 初期化 ----
-// ホーム画面は display:flex で制御するため特別処理
-document.getElementById('screen-home').style.display='flex';
-document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
-
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
-buildTable();
-updateHistCount();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+buildRef();updateCount();
 </script>
 </body>
 </html>
