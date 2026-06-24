@@ -155,6 +155,7 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
             <option value="20">20代</option><option value="30">30代</option>
             <option value="40">40代</option><option value="50">50代</option>
             <option value="60">60代</option><option value="70">70代</option>
+            <option value="80">80代</option>
           </select>
         </div>
       </div>
@@ -260,10 +261,10 @@ table.ref tr.hl td { color: #6af; font-weight: 600; }
 
 <script>
 const N = {
-  A:{20:{s1:37,s2:45},30:{s1:37,s2:45},40:{s1:38,s2:45},50:{s1:40,s2:46},60:{s1:42,s2:49},70:{s1:57,s2:68}},
-  B:{20:{s1:54,s2:65},30:{s1:55,s2:65},40:{s1:61,s2:73},50:{s1:74,s2:88},60:{s1:75,s2:88},70:{s1:113,s2:138}}
+  A:{20:{s1:37,s2:45},30:{s1:37,s2:45},40:{s1:38,s2:45},50:{s1:40,s2:46},60:{s1:42,s2:49},70:{s1:57,s2:68},80:{s1:60,s2:69}},
+  B:{20:{s1:54,s2:65},30:{s1:55,s2:65},40:{s1:61,s2:73},50:{s1:74,s2:88},60:{s1:75,s2:88},70:{s1:113,s2:138},80:{s1:128,s2:152}}
 };
-const AGES=[20,30,40,50,60,70];
+const AGES=[20,30,40,50,60,70,80];
 const C={ae:0,al:0,be:0,bl:0};
 const JDG=[['正常','境界','異常'],['境界','異常','異常']];
 const HKEY='tmt_history', HMAX=10, HEXP=7*24*60*60*1000;
