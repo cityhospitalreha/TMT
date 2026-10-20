@@ -160,6 +160,37 @@ table.ref tr.hl td { color: var(--blue-hl); font-weight: 600; }
 .hist-del { background: none; border: 1px solid var(--border2); border-radius: 6px; color: var(--text-faint2); font-size: 13px; cursor: pointer; padding: 4px 10px; margin-left: 8px; }
 .hist-del:active { color: var(--red-bright); border-color: var(--red-bright); }
 .no-hist { font-size: 14px; color: var(--text-faint); text-align: center; padding: 80px 0; }
+
+/* ===== 年代ボタン ===== */
+.band-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.band-chip {
+  padding: 12px 0; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--input-bg); color: var(--text-dim); font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.band-chip.sel { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.band-chip:active { opacity: .7; }
+table.ref tbody tr { cursor: pointer; }
+
+/* ===== 位置バー ===== */
+.pos-wrap { background: var(--panel); border: 1px solid var(--border2); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.pos-title { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+.pos-part { margin-top: 26px; }
+.pos-part-hd { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-dim); margin-bottom: 26px; }
+.pos-part-hd b { color: var(--text); }
+.pos-track { position: relative; height: 22px; border-radius: 6px; overflow: visible; display: flex; }
+.pos-zone { height: 100%; }
+.pos-zone.z0 { background: var(--green-bg); border: 1px solid var(--green); border-radius: 6px 0 0 6px; }
+.pos-zone.z1 { background: var(--cb-bg); border: 1px solid var(--yellow); border-left: none; }
+.pos-zone.z2 { background: var(--ca-bg); border: 1px solid var(--red); border-left: none; border-radius: 0 6px 6px 0; }
+.pos-marker { position: absolute; top: -5px; bottom: -5px; width: 3px; margin-left: -1.5px; background: var(--outline); border-radius: 2px; }
+.pos-marker span {
+  position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+  background: var(--outline); color: var(--bg); border-radius: 4px; padding: 1px 6px;
+}
+.pos-scale { position: relative; height: 16px; font-size: 10px; color: var(--text-mute); margin-top: 4px; }
+.pos-scale span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.pos-note { font-size: 11px; color: var(--text-faint2); margin-top: 10px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -186,17 +217,9 @@ table.ref tr.hl td { color: var(--blue-hl); font-weight: 600; }
 
     <section>
       <h2>① 基本情報</h2>
-      <div class="row2">
-        <div class="field"><label>イニシャル</label><input type="text" id="initial" placeholder="例：YT" maxlength="4"></div>
-        <div class="field"><label>年代</label>
-          <select id="age" onchange="calc();buildRef();">
-            <option value="">-- 選択 --</option>
-            <option value="20">20代</option><option value="30">30代</option>
-            <option value="40">40代</option><option value="50">50代</option>
-            <option value="60">60代</option><option value="70">70代</option>
-            <option value="80">80代</option>
-          </select>
-        </div>
+      <div class="field" style="margin-bottom:12px"><input type="text" id="memo" maxlength="20"></div>
+      <div class="field"><label>年代</label>
+        <div class="band-chips" id="band-chips"></div>
       </div>
     </section>
 
@@ -268,8 +291,9 @@ table.ref tr.hl td { color: var(--blue-hl); font-weight: 600; }
         <span style="color:#4c4;">● 正常</span>
         <span style="color:#cc4;">● 境界</span>
         <span style="color:#f55;">● 異常</span>
-        <span style="color:#fff;">□ 現在の値</span>
+        <span style="color:var(--text);">□ 現在の値</span>
       </div>
+      <div class="pos-wrap" id="pos-wrap" style="margin-top:14px"></div>
       <button class="btn-save" onclick="saveRecord()">💾 この結果を保存する</button>
     </section>
 
@@ -334,6 +358,71 @@ const C={ae:0,al:0,be:0,bl:0};
 const JDG=[['正常','境界','異常'],['境界','異常','異常']];
 const HKEY='tmt_history', HMAX=10, HEXP=7*24*60*60*1000;
 
+// ---- 年代ボタン ----
+let selAge=null;   // 選んだ年代（20,30…80）。未選択は null
+function renderChips(){
+  document.getElementById('band-chips').innerHTML=AGES.map(a=>
+    `<button class="band-chip${a===selAge?' sel':''}" onclick="selectAge(${a})">${a}代</button>`
+  ).join('');
+}
+function selectAge(a){
+  selAge=(selAge===a)?null:a;   // 同じボタンをもう一度押すと解除
+  renderChips();buildRef();calc();
+}
+
+// ---- 位置バー：その年代の基準の中で、所要時間がどこに当たるか ----
+// 基準値表の区切り（s1＝+1SDの境目、s2＝+2SDの境目）をそのまま色帯にする
+function partBar(label,v,n){
+  // 右端の秒数：+2SD境目の1.5倍か、実際の時間＋少し の大きい方
+  const max=Math.max(Math.round(n.s2*1.5), isNaN(v)?0:Math.ceil(v*1.08));
+  const pct=x=>Math.max(0,Math.min(100,x/max*100));
+  const w0=pct(n.s1), w1=pct(n.s2)-w0, w2=100-w0-w1;
+  let head=`<span>${label}</span><span>—</span>`, marker='';
+  if(!isNaN(v)){
+    const zone=v<=n.s1?'±1SD以内':v<=n.s2?'±2SD以内':'±2SD超';
+    const diff=v-n.s1;
+    const diffTxt=diff<=0?`+1SD境目まで あと${-diff}秒`:`+1SD境目より ${diff}秒 長い`;
+    head=`<span>${label}</span><span><b>${zone}</b>　${diffTxt}</span>`;
+    marker=`<div class="pos-marker" style="left:${pct(v)}%"><span>${v}秒</span></div>`;
+  }
+  return `<div class="pos-part">
+    <div class="pos-part-hd">${head}</div>
+    <div class="pos-track">
+      <div class="pos-zone z0" style="width:${w0}%"></div>
+      <div class="pos-zone z1" style="width:${w1}%"></div>
+      <div class="pos-zone z2" style="width:${w2}%"></div>
+      ${marker}
+    </div>
+    <div class="pos-scale">
+      <span style="left:0;transform:none">0</span>
+      <span style="left:${pct(n.s1)}%">${n.s1}</span>
+      <span style="left:${pct(n.s2)}%">${n.s2}</span>
+      <span style="left:100%;transform:translateX(-100%)">${max}秒</span>
+    </div>
+  </div>`;
+}
+function renderPos(at,bt){
+  const el=document.getElementById('pos-wrap');
+  if(!selAge){el.innerHTML='<div class="pos-title">年代を選ぶと、基準の中での位置を表示します</div>';return;}
+  el.innerHTML=`<div class="pos-title">${selAge}代 の基準の中での位置（左ほど速い）</div>`
+    +partBar('Part A',at,N.A[selAge])
+    +partBar('Part B',bt,N.B[selAge])
+    +`<div class="pos-note">緑＝±1SD以内　黄＝±2SD以内　赤＝±2SD超　縦線＝今回の所要時間</div>`;
+}
+
+// ---- 自由記載の文字を安全に表示する（< > などをそのまま文字として出す） ----
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// ---- 旧記録のお掃除：以前保存したイニシャル(ini)をこの端末から消す ----
+function scrubOld(){
+  try{
+    const r=localStorage.getItem(HKEY);if(!r)return;
+    const l=JSON.parse(r);let ch=false;
+    l.forEach(x=>{if('ini' in x){delete x.ini;ch=true;}});
+    if(ch)localStorage.setItem(HKEY,JSON.stringify(l));
+  }catch(e){}
+}
+
 // ---- ページ切替 ----
 function goto(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -357,7 +446,7 @@ function resetT(p){const st=T[p];clearInterval(st.iv);st.iv=null;st.el=0;documen
 function trank(v,n){if(!n||isNaN(v))return null;return v<=n.s1?0:v<=n.s2?1:2;}
 function erank(e,thr){return e<thr?0:1;}
 function calc(){
-  const age=parseInt(document.getElementById('age').value)||null;
+  const age=selAge;
   const at=parseFloat(document.getElementById('at').value);
   const bt=parseFloat(document.getElementById('bt').value);
   document.getElementById('s-at').textContent=!isNaN(at)?at+'秒':'—';
@@ -369,12 +458,13 @@ function calc(){
   ['ma-00','ma-01','ma-02','ma-10','ma-11','ma-12','mb-00','mb-01','mb-02','mb-10','mb-11','mb-12'].forEach(id=>document.getElementById(id).classList.remove('cc'));
   if(age&&!isNaN(at)){const tr=trank(at,N.A[age]),er=erank(C.ae,3);if(tr!==null)document.getElementById('ma-'+er+tr).classList.add('cc');}
   if(age&&!isNaN(bt)){const tr=trank(bt,N.B[age]),er=erank(C.be,5);if(tr!==null)document.getElementById('mb-'+er+tr).classList.add('cc');}
+  renderPos(at,bt);
 }
 function buildRef(){
-  const age=parseInt(document.getElementById('age').value)||null;
+  const age=selAge;
   ['A','B'].forEach(pt=>{
     const tb=document.getElementById('rb'+pt.toLowerCase());tb.innerHTML='';
-    AGES.forEach(a=>{const n=N[pt][a],tr=document.createElement('tr');if(a===age)tr.className='hl';tr.innerHTML=`<td>${a}代</td><td>〜${n.s1}秒</td><td>${n.s1+1}〜${n.s2}秒</td><td>${n.s2+1}秒〜</td>`;tb.appendChild(tr);});
+    AGES.forEach(a=>{const n=N[pt][a],tr=document.createElement('tr');if(a===age)tr.className='hl';tr.onclick=()=>selectAge(a);tr.innerHTML=`<td>${a}代</td><td>〜${n.s1}秒</td><td>${n.s1+1}〜${n.s2}秒</td><td>${n.s2+1}秒〜</td>`;tb.appendChild(tr);});
   });
 }
 
@@ -383,15 +473,15 @@ function loadHist(){try{const r=localStorage.getItem(HKEY);if(!r)return[];return
 function saveHist(l){localStorage.setItem(HKEY,JSON.stringify(l));}
 function jlabel(er,tr){if(er===null||tr===null)return'—';return JDG[er][tr];}
 function saveRecord(){
-  const ini=document.getElementById('initial').value.trim()||'??';
-  const age=parseInt(document.getElementById('age').value)||null;
+  const memo=document.getElementById('memo').value.trim();
+  const age=selAge;
   const at=parseFloat(document.getElementById('at').value);
   const bt=parseFloat(document.getElementById('bt').value);
   if(!age){alert('年代を選択してください');return;}
   if(isNaN(at)&&isNaN(bt)){alert('所要時間を入力してください');return;}
   const trA=!isNaN(at)?trank(at,N.A[age]):null,erA=erank(C.ae,3);
   const trB=!isNaN(bt)?trank(bt,N.B[age]):null,erB=erank(C.be,5);
-  const rec={ts:Date.now(),ini,age,at:isNaN(at)?null:at,bt:isNaN(bt)?null:bt,ae:C.ae,al:C.al,be:C.be,bl:C.bl,ja:jlabel(erA,trA),jb:jlabel(erB,trB)};
+  const rec={ts:Date.now(),memo,age,at:isNaN(at)?null:at,bt:isNaN(bt)?null:bt,ae:C.ae,al:C.al,be:C.be,bl:C.bl,ja:jlabel(erA,trA),jb:jlabel(erB,trB)};
   let l=loadHist();l.unshift(rec);if(l.length>HMAX)l=l.slice(0,HMAX);
   saveHist(l);updateCount();alert('保存しました！');
 }
@@ -400,12 +490,12 @@ function dstr(ts){const d=new Date(ts);return`${d.getMonth()+1}/${d.getDate()} $
 function renderHist(){
   const l=loadHist(),el=document.getElementById('hist-list');
   if(!l.length){el.innerHTML='<div class="no-hist">保存された記録はありません</div>';return;}
-  el.innerHTML=l.map(r=>`<div class="hist-item"><div class="hist-hd"><span class="hist-id">${r.ini}・${r.age}代</span><span><span class="hist-date">${dstr(r.ts)}</span><button class="hist-del" onclick="delRec(${r.ts})">削除</button></span></div><div class="hist-body">A：${r.at!==null?r.at+'秒':'—'} / エラー${r.ae} / リフト${r.al} → <strong>${r.ja}</strong><br>B：${r.bt!==null?r.bt+'秒':'—'} / エラー${r.be} / リフト${r.bl} → <strong>${r.jb}</strong></div></div>`).join('');
+  el.innerHTML=l.map(r=>`<div class="hist-item"><div class="hist-hd"><span class="hist-id">${[r.memo?esc(r.memo):'',r.age+'代'].filter(Boolean).join('・')}</span><span><span class="hist-date">${dstr(r.ts)}</span><button class="hist-del" onclick="delRec(${r.ts})">削除</button></span></div><div class="hist-body">A：${r.at!==null?r.at+'秒':'—'} / エラー${r.ae} / リフト${r.al} → <strong>${r.ja}</strong><br>B：${r.bt!==null?r.bt+'秒':'—'} / エラー${r.be} / リフト${r.bl} → <strong>${r.jb}</strong></div></div>`).join('');
 }
 function updateCount(){const n=loadHist().length;document.getElementById('home-count').textContent=n?`保存済み ${n}件`:'';}
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
-buildRef();updateCount();
+scrubOld();renderChips();buildRef();calc();updateCount();
 </script>
 </body>
 </html>
